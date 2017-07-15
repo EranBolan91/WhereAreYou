@@ -6,22 +6,27 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.view.View;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 
-public class MapsActivity extends SupportMapFragment implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final int RC_LOCATION = 1;
     private GoogleMap mMap;
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        getMapAsync(this);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps);
+            //TODO: fix the map fragment!!!
+        MapFragment mapFragment = new MapFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container,mapFragment,"1")
+                .commit();
+        mapFragment.getMapAsync(this);
     }
 
     /**
@@ -44,10 +49,10 @@ public class MapsActivity extends SupportMapFragment implements OnMapReadyCallba
     private boolean checkLocationPermission(){
         String[] permissions = new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION};
         //If No Permission-> Request the permission and return false.
-        if (ActivityCompat.checkSelfPermission(getContext(),
+        if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(getActivity(), permissions, RC_LOCATION);
+            ActivityCompat.requestPermissions(this, permissions, RC_LOCATION);
             return false;
         }
         return true;//return true if we have a permission
@@ -61,7 +66,7 @@ public class MapsActivity extends SupportMapFragment implements OnMapReadyCallba
             public boolean onMyLocationButtonClick() {
                 if (mMap.getMyLocation()!=null) {
                     Location myLocation = mMap.getMyLocation();
-                    Toast.makeText(getActivity(), "" + myLocation.getLatitude(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(), "" + myLocation.getLatitude(), Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }

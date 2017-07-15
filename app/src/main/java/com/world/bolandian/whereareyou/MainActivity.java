@@ -144,6 +144,9 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+        if(id == R.id.action_sign_out){
+            AuthUI.getInstance().signOut(this);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -164,14 +167,14 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
+                    return new MapsActivity();
+                case 1:
 //                    MapsActivity mapsActivity = new MapsActivity();
 //                    getSupportFragmentManager().beginTransaction().
 //                            replace(R.id.container,mapsActivity,"1").
 //                            commit();
-                    return new Fragment();
-
-                case 1:
-                    return new GroupsFragment();
+                    //return new GroupsFragment();
+                    return new MapsActivity();
                 default:
                     return new Fragment();
             }
