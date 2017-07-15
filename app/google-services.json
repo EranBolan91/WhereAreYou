@@ -1,0 +1,280 @@
+{
+  "project_info": {
+    "project_number": "149872665563",
+    "firebase_url": "https://fir-c5aec.firebaseio.com",
+    "project_id": "fir-c5aec",
+    "storage_bucket": "fir-c5aec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149872665563:android:803c5f4b39b47edc",
+        "android_client_info": {
+          "package_name": "com.world.bolandian.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFm9WTkeyShUlrjzaKtdU8h-lTbIiF8lw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149872665563:android:10ad2120d7004c4b",
+        "android_client_info": {
+          "package_name": "com.udacity.firebase.shoppinglistplusplus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFm9WTkeyShUlrjzaKtdU8h-lTbIiF8lw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149872665563:android:3cb98d08e4fe7f19",
+        "android_client_info": {
+          "package_name": "com.world.bolandian.chatapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFm9WTkeyShUlrjzaKtdU8h-lTbIiF8lw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149872665563:android:a33be233373c16be",
+        "android_client_info": {
+          "package_name": "com.world.bolandian.xmlandjson"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149872665563-on9aua2qn3mmd7t0u02ujahf6q0k0a48.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.world.bolandian.xmlandjson",
+            "certificate_hash": "5b4fbc05e83fd15fd88c66351b1d7458ad08e53c"
+          }
+        },
+        {
+          "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFm9WTkeyShUlrjzaKtdU8h-lTbIiF8lw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149872665563:android:cbe5a39802629bd6",
+        "android_client_info": {
+          "package_name": "com.world.bolandian.firebasewithdatabase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149872665563-a6or1lka79j1bveut6h4vpokddks31nb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.world.bolandian.firebasewithdatabase",
+            "certificate_hash": "5b4fbc05e83fd15fd88c66351b1d7458ad08e53c"
+          }
+        },
+        {
+          "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFm9WTkeyShUlrjzaKtdU8h-lTbIiF8lw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149872665563:android:ae3e0f9b6566ad6b",
+        "android_client_info": {
+          "package_name": "com.world.bolandian.locationaware"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149872665563-p2ohs8vsv93v74nsqj98iq3ecetgd26u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.world.bolandian.locationaware",
+            "certificate_hash": "5b4fbc05e83fd15fd88c66351b1d7458ad08e53c"
+          }
+        },
+        {
+          "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFm9WTkeyShUlrjzaKtdU8h-lTbIiF8lw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149872665563:android:e1f726089f0bc323",
+        "android_client_info": {
+          "package_name": "com.world.bolandian.whereareyou"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "149872665563-ofaj9q8mj8t411dgsvbelr5b33jf8ji4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.world.bolandian.whereareyou",
+            "certificate_hash": "5b4fbc05e83fd15fd88c66351b1d7458ad08e53c"
+          }
+        },
+        {
+          "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFm9WTkeyShUlrjzaKtdU8h-lTbIiF8lw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "149872665563-4lt7v2s5c0ilktook58s0iali2h0r3rh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
