@@ -26,36 +26,4 @@
         android:layout_marginTop="8dp"
         app:layout_constraintHorizontal_bias="0.0" />
 
-    <com.beardedhen.androidbootstrap.BootstrapButton
-        android:id="@+id/btnCancel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="-1dp"
-        android:layout_marginTop="8dp"
-        android:text="Cancel"
-        app:bootstrapBrand="info"
-        app:bootstrapSize="lg"
-        app:buttonMode="regular"
-        app:layout_constraintLeft_toRightOf="@+id/btnCreate"
-        app:layout_constraintRight_toRightOf="@+id/etGroupName"
-        app:layout_constraintTop_toBottomOf="@+id/etGroupName"
-        app:roundedCorners="true"
-        app:showOutline="false" />
-
-    <com.beardedhen.androidbootstrap.BootstrapButton
-        android:id="@+id/btnCreate"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="8dp"
-        android:text="Create"
-        app:bootstrapBrand="info"
-        app:bootstrapSize="lg"
-        app:buttonMode="regular"
-        app:layout_constraintLeft_toLeftOf="@+id/etGroupName"
-        app:layout_constraintRight_toLeftOf="@+id/btnCancel"
-        app:layout_constraintTop_toBottomOf="@+id/etGroupName"
-        app:roundedCorners="true"
-        app:showOutline="false" />
 </android.support.constraint.ConstraintLayout>

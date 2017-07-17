@@ -2,16 +2,17 @@ package com.world.bolandian.whereareyou;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,8 +26,9 @@ import com.world.bolandian.whereareyou.models.Groups;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class GroupsFragment extends Fragment {
+public class GroupsFragment extends Fragment implements View.OnClickListener {
         private RecyclerView rvGroup;
+        private FloatingActionButton fabAdd;
 
 
     public GroupsFragment() {
@@ -40,6 +42,8 @@ public class GroupsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_groups, container, false);
         rvGroup = (RecyclerView)view.findViewById(R.id.rvGroup);
+        fabAdd = (FloatingActionButton)view.findViewById(R.id.fabAdd);
+        fabAdd.setOnClickListener(this);
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user == null)return view;
@@ -50,6 +54,33 @@ public class GroupsFragment extends Fragment {
         rvGroup.setLayoutManager(new LinearLayoutManager(getContext()));
 
         return view;
+    }
+
+    @Override
+    public void onClick(View view) {
+           AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
+           View viewDialog = LayoutInflater.from(getContext()).inflate(R.layout.dialog_create_group,null);
+
+            dialog.setTitle("Group name");
+            dialog.setMessage("Please enter the group name");
+            dialog.setView(viewDialog);
+
+
+        dialog.setPositiveButton("Create", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        AlertDialog alertDialog = dialog.create();
+        alertDialog.show();
+
+
     }
 
 
@@ -68,37 +99,14 @@ public class GroupsFragment extends Fragment {
         }
     }
 
-    public static class GroupListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class GroupListViewHolder extends RecyclerView.ViewHolder {
         private TextView groupName;
-        private FloatingActionButton fabAdd;
         private Context fragment;
 
         public GroupListViewHolder(View itemView) {
             super(itemView);
             this.fragment = itemView.getContext();
             groupName = (TextView) itemView.findViewById(R.id.groupName);
-            fabAdd = (FloatingActionButton) itemView.findViewById(R.id.fabAdd);
-
-            fabAdd.setOnClickListener(this);
-
-
-        }
-
-        @Override
-        public void onClick(View view) {
-            //   LayoutInflater.from(GroupsFragment.this).inflate();
-            //    AlertDialog.Builder alertDialog = new AlertDialog.Builder(fragment.getContext());
-            if(view == fabAdd)
-            Toast.makeText(fragment, "chrcked!", Toast.LENGTH_SHORT).show();
-
-//            EditText editText = new EditText(fragment.getContext());
-//            AlertDialog.Builder dialog = new AlertDialog.Builder(fragment.getContext());
-//            dialog.setTitle("Group name");
-//            dialog.setMessage("Please enter the group name");
-//            dialog.setView(R.layout.dialog_create_group);
-//            dialog.show();
-
-
         }
     }
 

@@ -6,7 +6,6 @@
     tools:context="com.world.bolandian.whereareyou.GroupsFragment">
 
 
-
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabAdd"
         android:layout_width="78dp"
@@ -15,6 +14,7 @@
         android:layout_marginLeft="31dp"
         android:clickable="true"
         app:backgroundTint="@color/bootstrap_dropdown_divider"
+        app:elevation="10dp"
         app:fabSize="mini"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -167,16 +167,17 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    return new MapsActivity();
+                    return new GroupsFragment();
                 case 1:
 //                    MapsActivity mapsActivity = new MapsActivity();
 //                    getSupportFragmentManager().beginTransaction().
 //                            replace(R.id.container,mapsActivity,"1").
 //                            commit();
                     //return new GroupsFragment();
-                    return new MapsActivity();
-                default:
                     return new Fragment();
+                case 2:
+                    return new Fragment();
+                default: return new Fragment();
             }
         }
 
