@@ -11,9 +11,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 
-public class MapsActivity extends SupportMapFragment implements OnMapReadyCallback {
+public class MapsActivity extends MapFragment implements OnMapReadyCallback {
 
     private static final int RC_LOCATION = 1;
     private GoogleMap mMap;

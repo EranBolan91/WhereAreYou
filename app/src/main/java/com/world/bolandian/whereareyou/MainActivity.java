@@ -173,8 +173,9 @@ public class MainActivity extends AppCompatActivity {
 //                    getSupportFragmentManager().beginTransaction().
 //                            replace(R.id.container,mapsActivity,"1").
 //                            commit();
-                    //return new GroupsFragment();
-                    return new Fragment();
+                 // return new SupportMapFragment();
+                  return new Fragment();
+                //    return new Fragment();
                 case 2:
                     return new Fragment();
                 default: return new Fragment();
