@@ -8,4 +8,6 @@
     <string name="title_activity_maps">Map</string>
     <string name="action_sign_out">Sign out</string>
     <string name="add_member">Add member</string>
+    <string name="title_activity_gmf">GMF</string>
+    <string name="title_activity_group_member">GroupMemberActivity</string>
 </resources>

@@ -40,7 +40,16 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps" />
+        <activity
+            android:name=".GroupMemberActivity"
+            android:label="@string/title_activity_group_member"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.world.bolandian.whereareyou.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

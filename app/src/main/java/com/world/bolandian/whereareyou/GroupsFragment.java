@@ -1,8 +1,8 @@
 package com.world.bolandian.whereareyou;
 
 
-import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -133,16 +133,24 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         protected void populateViewHolder(GroupListViewHolder viewHolder, Groups model, int position) {
             viewHolder.groupName.setText(model.getGroupName());
 
+            viewHolder.model = model;
+        }
+
+        @Override
+        public GroupListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(viewType,parent,false);
+            return new GroupListViewHolder(view,fragment);
         }
     }
 
     public static class GroupListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView groupName;
-        private Context fragment;
+        private Fragment fragment;
+        private Groups model;
 
-        public GroupListViewHolder(View itemView) {
+        public GroupListViewHolder(View itemView,Fragment fragment) {
             super(itemView);
-            this.fragment = itemView.getContext();
+            this.fragment = fragment;
             groupName = (TextView) itemView.findViewById(R.id.groupName);
             itemView.setOnClickListener(this);
         }
@@ -150,6 +158,12 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onClick(View view) {
             //TODO: jump to groupMemberFragment and transfer the data
+//            GroupMemberFragment gmf = new GroupMemberFragment();
+//            fragment.getChildFragmentManager().beginTransaction().replace(R.id.container,gmf).commit();
+            Intent i = new Intent(fragment.getContext(),GroupMemberActivity.class);
+            i.putExtra("model",model);
+            fragment.getActivity().startActivity(i);
+
         }
     }
 
