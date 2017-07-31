@@ -35,6 +35,8 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         private RecyclerView rvGroup;
         private FloatingActionButton fabAdd;
         private String groupName;
+        private DatabaseReference ref;
+
 
 
     public GroupsFragment() {
@@ -54,7 +56,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if(user == null)return view;
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(user.getUid());
+         ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(user.getUid());
         GroupsAdapter adapter = new GroupsAdapter(ref,this);
         rvGroup.setAdapter(adapter);
         rvGroup.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -107,7 +109,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
     private void addGroup(String nameGroup) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(user.getUid());
+        ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(user.getUid());
         DatabaseReference row = ref.push();
         String groupID = row.getKey();
 

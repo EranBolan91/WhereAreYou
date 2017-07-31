@@ -46,6 +46,10 @@
             android:label="@string/title_activity_group_member"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
+                <meta-data
+                    android:name="android.app.searchable"
+                    android:resource="@layout/activity_group_member"
+                    android:value=".activities.SearchResultActivity" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.world.bolandian.whereareyou.MainActivity" />

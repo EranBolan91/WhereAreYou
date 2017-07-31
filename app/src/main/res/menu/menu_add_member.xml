@@ -3,10 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_add_member"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_add_member"
-        app:showAsAction="always"
-        android:title="@string/add_member"/>
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_action_search"
+        app:showAsAction="collapseActionView|ifRoom"
+        app:actionViewClass="android.widget.SearchView"
+        android:title="search"/>
 
 </menu>
