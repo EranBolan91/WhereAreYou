@@ -17,8 +17,6 @@ import android.widget.Toast;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -26,8 +24,12 @@ import com.mikhaellopez.circularimageview.CircularImageView;
 import com.world.bolandian.whereareyou.models.Groups;
 import com.world.bolandian.whereareyou.models.User;
 
+import java.util.ArrayList;
+
 public class GroupMemberActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
                 private RecyclerView rvGroupMemberList;
+                private GroupMemberListAdapter adapter;
+                private User userModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +45,9 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
         }else {
             setTitle("");
         }
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
-
-        GroupMemberListAdapter adapter = new GroupMemberListAdapter(ref,this);
-        rvGroupMemberList.setAdapter(adapter);
-        rvGroupMemberList.setLayoutManager(new LinearLayoutManager(this));
+        //this code line gives me an error "DatabaseException: cant convert object of type String to model user.
+        //need to check why
+        //DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -61,14 +60,48 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
         MenuItem menuItem = menu.findItem(R.id.action_search);
         //this fires up the onQueryTextSubmit method
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(menuItem);
+        searchView.setQueryHint("Search for friends");
         searchView.setOnQueryTextListener(this);
-        //if it works then delete these lines
-//        SearchManager searchManager =
-//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-
 
         return true;
     }
+
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+        Query q = ref.child(userModel.getUid()).orderByChild("displayName").equalTo(query);
+        setAdapter(q);
+
+        return true;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+
+//        newText = newText.toLowerCase();
+//        ArrayList<User> newUserList = new ArrayList<>();
+//        for(User user : newUserList){
+//            String name = user.getDisplayName().toLowerCase();
+//            if(name.contains(newText))
+//                newUserList.add(user);
+//        }
+//        //TODO: try to resolve the problem of finding user, it shows all the list
+//        adapter.setFiler(newUserList);
+        return true;
+    }
+
+
+    private void setAdapter(Query query) {
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+//        ref.orderByChild("displayName").equalTo("Eran Bolandian");
+        adapter = new GroupMemberListAdapter(query,this);
+        rvGroupMemberList.setAdapter(adapter);
+        rvGroupMemberList.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -84,15 +117,8 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
     }
 
 
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        return false;
-    }
 
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        return false;
-    }
+
 
     public static class GroupMemberListAdapter extends FirebaseRecyclerAdapter<User,GroupMemberListViewHolder> {
             private Context context;
@@ -106,14 +132,22 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
         protected void populateViewHolder(GroupMemberListViewHolder viewHolder, User model, int position) {
             viewHolder.userName.setText(model.getDisplayName());
             Glide.with(context).load(model.getProfileImage()).into(viewHolder.profileImage);
-            //TODO: find why the model is not invoke the data from database - its gets null
+            viewHolder.model = model;
         }
+
+        public void setFiler(ArrayList<User> users){
+            ArrayList<User> user = new ArrayList<>();
+            user.addAll(users);
+            notifyDataSetChanged();
+        }
+
     }
 
     public static class GroupMemberListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             private TextView userName;
             private CircularImageView profileImage;
             private BootstrapButton btnAddMember;
+            private User model;
 
         public GroupMemberListViewHolder(View itemView) {
             super(itemView);
@@ -126,7 +160,8 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
 
         @Override
         public void onClick(View view) {
-            Toast.makeText(userName.getContext(), "hello", Toast.LENGTH_SHORT).show();
+            String name = model.getDisplayName();
+            Toast.makeText(userName.getContext(), name , Toast.LENGTH_SHORT).show();
         }
     }
 }

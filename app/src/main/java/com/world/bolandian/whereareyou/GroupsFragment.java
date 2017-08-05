@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -147,6 +148,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
     public static class GroupListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView groupName;
+        private BootstrapButton btnDeleteGroup;
         private Fragment fragment;
         private Groups model;
 
@@ -154,18 +156,58 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
             super(itemView);
             this.fragment = fragment;
             groupName = (TextView) itemView.findViewById(R.id.groupName);
+            btnDeleteGroup =(BootstrapButton) itemView.findViewById(R.id.btnDeleteGroup);
+
             itemView.setOnClickListener(this);
+            btnDeleteGroup.setOnClickListener(this);
         }
 
+        //Delete a group VIA dialog alert
         @Override
         public void onClick(View view) {
-            //TODO: jump to groupMemberFragment and transfer the data
-//            GroupMemberFragment gmf = new GroupMemberFragment();
-//            fragment.getChildFragmentManager().beginTransaction().replace(R.id.container,gmf).commit();
-            Intent i = new Intent(fragment.getContext(),GroupMemberActivity.class);
-            i.putExtra("model",model);
-            fragment.getActivity().startActivity(i);
+            if(view == btnDeleteGroup){
+                final AlertDialog.Builder dialogDelete = new AlertDialog.Builder(btnDeleteGroup.getContext());
 
+                dialogDelete.setIcon(R.drawable.ic_warning);
+                dialogDelete.setTitle("Removing group:  " + model.getGroupName());
+                dialogDelete.setCancelable(true);
+                dialogDelete.setMessage("Are you sure you want to remove?");
+
+                dialogDelete.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(final DialogInterface dialogInterface, int i) {
+                        //Delete group from firebase
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(model.getOwnerGroupUID());
+                        ref.child(model.getGroupUID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()){
+                                    Toast.makeText(btnDeleteGroup.getContext(),model.getGroupName() + " Deleted", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Toast.makeText(btnDeleteGroup.getContext(), "some problem has occurred, please try again", Toast.LENGTH_SHORT).show();
+                                    dialogInterface.dismiss();
+                                }
+                            }
+                        });
+
+                    }
+                }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                                 dialogInterface.dismiss();
+                    }
+                });
+
+                final AlertDialog alertDialog = dialogDelete.create();
+                alertDialog.show();
+
+            }else { // the else fires up when the user tape on the view, when remove button is not tapped
+                    //this open an activity and transfer the data of the group that was tapped
+                //TODO: jump to groupMemberFragment and transfer the data
+                Intent i = new Intent(fragment.getContext(), GroupMemberActivity.class);
+                i.putExtra("model", model);
+                fragment.getActivity().startActivity(i);
+            }
         }
     }
 

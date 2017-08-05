@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:layout_goneMarginBottom="8dp"
     android:elevation="100dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="10dp"
-    android:layout_marginBottom="6dp"
+    app:cardElevation="2dp"
+    android:layout_marginBottom="2dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:padding="8dp">
 
     <TextView
         android:id="@+id/groupName"
@@ -26,6 +26,27 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent" />
+
+
+        <com.beardedhen.androidbootstrap.BootstrapButton
+            android:id="@+id/btnDeleteGroup"
+            android:layout_width="101dp"
+            android:layout_height="37dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="33dp"
+            android:layout_marginTop="8dp"
+            android:text="Remove"
+            app:bootstrapBrand="danger"
+            app:bootstrapSize="lg"
+            app:buttonMode="regular"
+            app:layout_constraintBottom_toBottomOf="@+id/groupName"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/groupName"
+            app:layout_constraintVertical_bias="0.0"
+            app:roundedCorners="true"
+            app:showOutline="false"
+            tools:layout_editor_absoluteY="21dp" />
+
 
     </android.support.constraint.ConstraintLayout>
 </android.support.v7.widget.CardView>

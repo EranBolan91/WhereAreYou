@@ -6,13 +6,20 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.firebase.database.Query;
+import com.world.bolandian.whereareyou.models.Groups;
 
-public class MapsActivity extends MapFragment implements OnMapReadyCallback {
+public class MapsFragment extends SupportMapFragment implements OnMapReadyCallback {
 
     private static final int RC_LOCATION = 1;
     private GoogleMap mMap;
@@ -72,6 +79,29 @@ public class MapsActivity extends MapFragment implements OnMapReadyCallback {
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
             //noinspection MissingPermission
             addMyLocation();
+        }
+    }
+
+    public static class GroupsMapAdapter extends FirebaseRecyclerAdapter<Groups,GroupsMapViewHolder> {
+
+        public GroupsMapAdapter(Query query) {
+            super(Groups.class,R.layout.group_map_item,GroupsMapViewHolder.class, query);
+        }
+
+        @Override
+        protected void populateViewHolder(GroupsMapViewHolder viewHolder, Groups model, int position) {
+
+        }
+    }
+
+    public static class GroupsMapViewHolder extends RecyclerView.ViewHolder{
+            private TextView groupName;
+            private ImageView groupImage;
+
+        public GroupsMapViewHolder(View itemView) {
+            super(itemView);
+            //groupName = (TextView)itemView.findViewById(R.id.);
+            //groupImage = (ImageView)itemView.findViewById(R.id.);
         }
     }
 }
