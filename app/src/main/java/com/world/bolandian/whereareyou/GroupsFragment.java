@@ -118,6 +118,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         row.setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                //TODO: add task.isSuccsseful and else - if there is a problem
                 Toast.makeText(getContext(), "Group has added", Toast.LENGTH_SHORT).show();
             }
         });

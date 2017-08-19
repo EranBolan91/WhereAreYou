@@ -1,5 +1,6 @@
 package com.world.bolandian.whereareyou;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -16,6 +17,9 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.world.bolandian.whereareyou.models.Groups;
 
@@ -23,22 +27,30 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
 
     private static final int RC_LOCATION = 1;
     private GoogleMap mMap;
+    private DatabaseReference ref;
+    private FirebaseUser user;
+    private Groups groupModel;
+    private RecyclerView rvGroupMap;
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getMapAsync(this);
+        rvGroupMap = (RecyclerView)view.findViewById(R.id.rvGroupMapWork);
+
+         user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null){
+
+        }
+
+        // each group saved by user id = userid -> group name
+//        ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(user.getUid());
+//        GroupsMapAdapter groupMapAdapter = new GroupsMapAdapter(ref,getContext());
+//        rvGroupMap.setAdapter(groupMapAdapter);
+//        rvGroupMap.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.HORIZONTAL,true));
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -83,14 +95,16 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
     }
 
     public static class GroupsMapAdapter extends FirebaseRecyclerAdapter<Groups,GroupsMapViewHolder> {
+            private Context context;
 
-        public GroupsMapAdapter(Query query) {
+        public GroupsMapAdapter(Query query,Context context) {
             super(Groups.class,R.layout.group_map_item,GroupsMapViewHolder.class, query);
+            this.context = context;
         }
 
         @Override
         protected void populateViewHolder(GroupsMapViewHolder viewHolder, Groups model, int position) {
-
+                viewHolder.groupName.setText(model.getGroupName());
         }
     }
 
@@ -100,8 +114,8 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
 
         public GroupsMapViewHolder(View itemView) {
             super(itemView);
-            //groupName = (TextView)itemView.findViewById(R.id.);
-            //groupImage = (ImageView)itemView.findViewById(R.id.);
+            groupName = (TextView)itemView.findViewById(R.id.tvGroupName);
+            groupImage = (ImageView)itemView.findViewById(R.id.ivGroup);
         }
     }
 }
