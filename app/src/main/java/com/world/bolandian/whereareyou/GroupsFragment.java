@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.world.bolandian.whereareyou.models.Groups;
+import com.world.bolandian.whereareyou.models.User;
 
 
 /**
@@ -37,7 +39,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         private FloatingActionButton fabAdd;
         private String groupName;
         private DatabaseReference ref;
-
+        private FirebaseUser currentUser;
 
 
     public GroupsFragment() {
@@ -54,11 +56,12 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         fabAdd = (FloatingActionButton)view.findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(this);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user == null)return view;
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(currentUser == null)return view;
 
-         ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(user.getUid());
+         ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(currentUser.getUid());
         GroupsAdapter adapter = new GroupsAdapter(ref,this);
+        Log.d("checkAdapter",adapter.toString());Log.d("refe",ref.toString());
         rvGroup.setAdapter(adapter);
         rvGroup.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -107,21 +110,30 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    private Groups model;
     private void addGroup(String nameGroup) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(user.getUid());
+        ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(currentUser.getUid());
         DatabaseReference row = ref.push();
         String groupID = row.getKey();
+        model = new Groups(currentUser.getUid(),groupID,nameGroup);
 
-        Groups model = new Groups(user.getUid(),groupID,nameGroup);
         row.setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 //TODO: add task.isSuccsseful and else - if there is a problem
+                addOwnerToTheGroup(model);
                 Toast.makeText(getContext(), "Group has added", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void addOwnerToTheGroup(Groups groupModel) {
+        User user = new User(currentUser);
+    DatabaseReference refToMemeberGroup = FirebaseDatabase.getInstance()
+            .getReference(Params.MEMBER_GROUP_LIST).child(groupModel.getGroupUID())
+            .child(groupModel.getOwnerGroupUID());
+        refToMemeberGroup.push().setValue(user);
     }
 
 
@@ -178,7 +190,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
                     @Override
                     public void onClick(final DialogInterface dialogInterface, int i) {
                         //Delete group from firebase
-                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(model.getOwnerGroupUID());
+                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(model.getOwnerGroupUID());
                         ref.child(model.getGroupUID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {

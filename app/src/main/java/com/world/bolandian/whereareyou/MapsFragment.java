@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -20,6 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.world.bolandian.whereareyou.models.Groups;
 
@@ -36,20 +39,36 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getMapAsync(this);
-        rvGroupMap = (RecyclerView)view.findViewById(R.id.rvGroupMapWork);
+        rvGroupMap = (RecyclerView)view.findViewById(R.id.rvGroupMap);
 
          user = FirebaseAuth.getInstance().getCurrentUser();
         if(user == null){
 
         }
-
         // each group saved by user id = userid -> group name
-//        ref = FirebaseDatabase.getInstance().getReference("GroupLists").child(user.getUid());
-//        GroupsMapAdapter groupMapAdapter = new GroupsMapAdapter(ref,getContext());
-//        rvGroupMap.setAdapter(groupMapAdapter);
-//        rvGroupMap.setLayoutManager(new LinearLayoutManager(view.getContext(),LinearLayoutManager.HORIZONTAL,true));
     }
 
+    //TODO: found the problem. the problem is with the onViewCreate. i need to find out
+    //TODO: how to do it in onCreateView
+    @Override
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS);
+        if(ref == null){ // the ref is not null
+            Toast.makeText(getContext(), "ref is NULL!!!!", Toast.LENGTH_SHORT).show();
+        }
+        try{
+            GroupsMapAdapter groupMapAdapter = new GroupsMapAdapter(ref,getContext());
+            Log.d("adapterCheck",groupMapAdapter.toString());Log.d("refe",ref.toString());Log.d("userCheck",user.toString());
+            rvGroupMap.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,true));
+            rvGroupMap.setAdapter(groupMapAdapter);
+
+        }catch (Exception e){
+            Log.d("exceptionEcheck",e.toString());
+            System.out.println(e.toString());
+            Toast.makeText(getContext(), e.toString(), Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -105,6 +124,7 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
         @Override
         protected void populateViewHolder(GroupsMapViewHolder viewHolder, Groups model, int position) {
                 viewHolder.groupName.setText(model.getGroupName());
+           // Glide.with(context).load(model.ge).into(holder.profileImage);
         }
     }
 
@@ -115,7 +135,7 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
         public GroupsMapViewHolder(View itemView) {
             super(itemView);
             groupName = (TextView)itemView.findViewById(R.id.tvGroupName);
-            groupImage = (ImageView)itemView.findViewById(R.id.ivGroup);
+        //    groupImage = (ImageView)itemView.findViewById(R.id.ivGroup);
         }
     }
 }
