@@ -169,11 +169,6 @@ public class MainActivity extends AppCompatActivity {
                 case 0:
                     return new GroupsFragment();
                 case 1:
-//                    MapsFragment mapsActivity = new MapsFragment();
-//                    getSupportFragmentManager().beginTransaction().
-//                            replace(R.id.container,mapsActivity,"1").
-//                            commit();
-                 // return new SupportMapFragment();
                   return new MapsFragment();
                 //    return new Fragment();
                 case 2:

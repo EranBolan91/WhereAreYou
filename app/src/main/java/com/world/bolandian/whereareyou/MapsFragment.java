@@ -5,8 +5,8 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,7 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.world.bolandian.whereareyou.models.Groups;
 
-public class MapsFragment extends SupportMapFragment implements OnMapReadyCallback {
+public class MapsFragment extends FragmentActivity implements OnMapReadyCallback {
 
     private static final int RC_LOCATION = 1;
     private GoogleMap mMap;
@@ -35,38 +35,36 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
     private Groups groupModel;
     private RecyclerView rvGroupMap;
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        getMapAsync(this);
-        rvGroupMap = (RecyclerView)view.findViewById(R.id.rvGroupMap);
 
-         user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user == null){
 
-        }
-        // each group saved by user id = userid -> group name
-    }
 
-    //TODO: found the problem. the problem is with the onViewCreate. i need to find out
-    //TODO: how to do it in onCreateView
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
+        setContentView(R.layout.fragment_maps);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        rvGroupMap = (RecyclerView)findViewById(R.id.rvGroupMap);
+
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        // each group saved by user id = userid -> group name
         ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS);
         if(ref == null){ // the ref is not null
-            Toast.makeText(getContext(), "ref is NULL!!!!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "ref is NULL!!!!", Toast.LENGTH_SHORT).show();
         }
         try{
-            GroupsMapAdapter groupMapAdapter = new GroupsMapAdapter(ref,getContext());
+            GroupsMapAdapter groupMapAdapter = new GroupsMapAdapter(ref,this);
             Log.d("adapterCheck",groupMapAdapter.toString());Log.d("refe",ref.toString());Log.d("userCheck",user.toString());
-            rvGroupMap.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,true));
+            rvGroupMap.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,true));
             rvGroupMap.setAdapter(groupMapAdapter);
 
         }catch (Exception e){
             Log.d("exceptionEcheck",e.toString());
             System.out.println(e.toString());
-            Toast.makeText(getContext(), e.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -81,10 +79,10 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
     private boolean checkLocationPermission(){
         String[] permissions = new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION};
         //If No Permission-> Request the permission and return false.
-        if (ActivityCompat.checkSelfPermission(getContext(),
+        if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ActivityCompat.requestPermissions(getActivity(), permissions, RC_LOCATION);
+            ActivityCompat.requestPermissions(this, permissions, RC_LOCATION);
             return false;
         }
         return true;//return true if we have a permission
@@ -98,7 +96,7 @@ public class MapsFragment extends SupportMapFragment implements OnMapReadyCallba
             public boolean onMyLocationButtonClick() {
                 if (mMap.getMyLocation()!=null) {
                     Location myLocation = mMap.getMyLocation();
-                    Toast.makeText(getActivity(), "" + myLocation.getLatitude(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplication(), "" + myLocation.getLatitude(), Toast.LENGTH_SHORT).show();
                 }
                 return false;
             }
