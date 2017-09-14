@@ -9,4 +9,5 @@ public class Params {
     public static final String GROUP_LISTS = "GroupLists";
     public static final String MEMBER_GROUP_LIST = "MembersGroupList";
     public static final String USERS = "Users";
+    public static final String MEMBER_LOCATION = "MembersLocation";
 }

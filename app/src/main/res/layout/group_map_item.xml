@@ -7,8 +7,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="right"
     android:layout_marginBottom="4dp"
-    app:cardCornerRadius="9dp"
-    app:cardElevation="10dp">
+    app:cardElevation="3dp">
 
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
