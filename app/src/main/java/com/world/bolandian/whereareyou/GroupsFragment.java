@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +41,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         private String groupName;
         private DatabaseReference ref;
         private FirebaseUser currentUser;
+        private ProgressBar progressBar;
 
 
     public GroupsFragment() {
@@ -53,14 +55,17 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_groups, container, false);
         rvGroup = (RecyclerView)view.findViewById(R.id.rvGroup);
+        progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
         fabAdd = (FloatingActionButton)view.findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(this);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if(currentUser == null)return view;
+        //start the progress bar
+        progressBar.setVisibility(View.VISIBLE);
 
          ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(currentUser.getUid());
-        GroupsAdapter adapter = new GroupsAdapter(ref,this);
+        GroupsAdapter adapter = new GroupsAdapter(ref,this,progressBar);
         Log.d("checkAdapter",adapter.toString());Log.d("refe",ref.toString());
         rvGroup.setAdapter(adapter);
         rvGroup.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -139,10 +144,12 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
     public static class GroupsAdapter extends FirebaseRecyclerAdapter<Groups,GroupListViewHolder>  {
            private Fragment fragment;
+           private ProgressBar progressBar;
 
-        public GroupsAdapter(Query query,Fragment fragment) {
+        public GroupsAdapter(Query query,Fragment fragment,ProgressBar progressBar) {
             super(Groups.class, R.layout.group_item, GroupListViewHolder.class, query);
             this.fragment = fragment;
+            this.progressBar = progressBar;
         }
 
         @Override
@@ -155,7 +162,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         @Override
         public GroupListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(viewType,parent,false);
-            return new GroupListViewHolder(view,fragment);
+            return new GroupListViewHolder(view,fragment,progressBar);
         }
     }
 
@@ -165,9 +172,10 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         private Fragment fragment;
         private Groups model;
 
-        public GroupListViewHolder(View itemView,Fragment fragment) {
+        public GroupListViewHolder(View itemView,Fragment fragment,ProgressBar progressBar) {
             super(itemView);
             this.fragment = fragment;
+            progressBar.setVisibility(View.INVISIBLE);
             groupName = (TextView) itemView.findViewById(R.id.groupName);
             btnDeleteGroup =(BootstrapButton) itemView.findViewById(R.id.btnDeleteGroup);
 

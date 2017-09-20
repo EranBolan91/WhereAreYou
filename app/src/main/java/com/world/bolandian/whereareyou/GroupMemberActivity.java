@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -86,7 +87,8 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
 
         //TODO: find out why it gives me only one result. maybe the ref is not good enough
         mMembersInGroup = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST)
-                                                        .child(groupModel.getGroupUID());
+                                                        .child(groupModel.getGroupUID())
+                                                        .child(groupModel.getOwnerGroupUID());
         MemberAdapter adapter = new MemberAdapter(mMembersInGroup,this);
         rvGroupMemberList.setAdapter(adapter);
         rvGroupMemberList.setLayoutManager(new LinearLayoutManager(this));
@@ -216,13 +218,21 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
         @Override
         public void onClick(View view) {
             //save data under MemberGroupList -> groupID -> owner of the group ID -> the user data
-            DatabaseReference refToGroupLists = FirebaseDatabase.getInstance()
-                    .getReference(Params.MEMBER_GROUP_LIST).child(groupModel.getGroupUID()).child(groupModel.getOwnerGroupUID());
-            refToGroupLists.push().setValue(userModel);
+//            DatabaseReference refToGroupLists = FirebaseDatabase.getInstance()
+//                    .getReference(Params.MEMBER_GROUP_LIST).child(groupModel.getGroupUID()).child(groupModel.getOwnerGroupUID());
+//            refToGroupLists.push().setValue(userModel);
 
-            String name = userModel.getDisplayName();
-            Toast.makeText(userName.getContext(),"User" + name + " Has added" , Toast.LENGTH_SHORT).show();
-
+            //save data under MemberGroupList -> groupID ->owner of the group ID -> user id -> the user data
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST)
+                    .child(groupModel.getGroupUID()).child(groupModel.getOwnerGroupUID())
+                    .child(userModel.getUid());
+            ref.setValue(userModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    String name = userModel.getDisplayName();
+                    Toast.makeText(userName.getContext(),"User" + name + " Has added" , Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
