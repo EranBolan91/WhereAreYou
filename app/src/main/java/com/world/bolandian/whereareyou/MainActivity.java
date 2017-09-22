@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                 List<AuthUI.IdpConfig> providers = Arrays.asList(
                         new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER)
                                 .setPermissions(Arrays.asList(Scopes.PROFILE,Scopes.EMAIL)).build(),
-
                         new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
                         new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build());
 
