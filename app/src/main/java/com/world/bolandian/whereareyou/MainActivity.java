@@ -119,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-        tabLayout.getTabAt(0).setIcon(R.drawable.ic_search);
-        tabLayout.getTabAt(1).setIcon(R.drawable.ic_group);
+        tabLayout.getTabAt(0).setIcon(R.drawable.ic_group);
+        tabLayout.getTabAt(1).setIcon(R.drawable.ic_search);
         tabLayout.getTabAt(2).setIcon(R.drawable.ic_chat);
 
     }

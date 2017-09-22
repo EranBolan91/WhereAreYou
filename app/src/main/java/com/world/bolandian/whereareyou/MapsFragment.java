@@ -43,7 +43,7 @@ public class MapsFragment extends android.support.v4.app.Fragment implements OnM
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
-    private DatabaseReference ref;
+    private DatabaseReference ref,refToMemberList;
     private FirebaseUser user;
     private Groups groupModel;
     private RecyclerView rvGroupMap;
@@ -101,6 +101,8 @@ public class MapsFragment extends android.support.v4.app.Fragment implements OnM
         ref = FirebaseDatabase.getInstance().getReference(Params.MEMBER_LOCATION);
         GeoFire geoFire = new GeoFire(ref);
         geoFire.setLocation(user.getUid(),new GeoLocation(location.getLatitude(),location.getLongitude()));
+
+        refToMemberList = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST);
 
     }
 

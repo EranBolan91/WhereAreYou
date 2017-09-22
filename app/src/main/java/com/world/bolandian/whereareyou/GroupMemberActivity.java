@@ -1,8 +1,11 @@
 package com.world.bolandian.whereareyou;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +15,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +22,9 @@ import android.widget.Toast;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -89,7 +93,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
         mMembersInGroup = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST)
                                                         .child(groupModel.getGroupUID())
                                                         .child(groupModel.getOwnerGroupUID());
-        MemberAdapter adapter = new MemberAdapter(mMembersInGroup,this);
+        MemberAdapter adapter = new MemberAdapter(mMembersInGroup,this,groupModel);
         rvGroupMemberList.setAdapter(adapter);
         rvGroupMemberList.setLayoutManager(new LinearLayoutManager(this));
 
@@ -209,7 +213,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
             super(itemView);
             this.groupModel = groupModel;
             userName = (TextView) itemView.findViewById(R.id.tvUserName);
-            profileImage = (CircularImageView)itemView.findViewById(R.id.cvProfile);
+            profileImage = (CircularImageView)itemView.findViewById(R.id.cvMember);
             btnAddMember = (BootstrapButton)itemView.findViewById(R.id.btnAddMember);
 
             btnAddMember.setOnClickListener(this);
@@ -239,29 +243,78 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
     //Member List Adapter
    public static class MemberAdapter extends FirebaseRecyclerAdapter<User,MemberListViewHolder> {
        private Context context;
-       public MemberAdapter(Query query,Context context) {
+       private Groups modelGroup;
+
+       public MemberAdapter(Query query,Context context,Groups modelGroup) {
            super(User.class, R.layout.group_member_item, MemberListViewHolder.class, query);
            this.context = context;
+           this.modelGroup = modelGroup;
        }
 
        @Override
        protected void populateViewHolder(MemberListViewHolder viewHolder, User model, int position) {
             viewHolder.name.setText(model.getDisplayName());
-            Glide.with(context).load(model.getDisplayName()).into(viewHolder.civImage);
+            Glide.with(context).load(model.getProfileImage()).into(viewHolder.civImage);
+            viewHolder.userModel = model;
+            viewHolder.groups = modelGroup;
        }
    }
 
-    public static class MemberListViewHolder extends RecyclerView.ViewHolder {
+    public static class MemberListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             private TextView name;
             private CircularImageView civImage;
-            private ImageButton btnDelete;
+            private BootstrapButton btnKick;
+            private User userModel;
+            private Groups groups;
 
          public MemberListViewHolder(View itemView) {
              super(itemView);
              name = (TextView)itemView.findViewById(R.id.tvNameMember);
-             civImage =(CircularImageView)itemView.findViewById(R.id.cvProfile);
-             btnDelete = (ImageButton) itemView.findViewById(R.id.ibDeleteMember);
+             civImage =(CircularImageView)itemView.findViewById(R.id.cvMember);
+             btnKick = (BootstrapButton) itemView.findViewById(R.id.btnKickMemeber);
+
+             btnKick.setOnClickListener(this);
          }
-     }
+
+         //Delete a member from the list
+        @Override
+        public void onClick(View view) {
+            final AlertDialog.Builder dialogDelete = new AlertDialog.Builder(btnKick.getContext());
+
+            dialogDelete.setIcon(R.drawable.ic_warning);
+            dialogDelete.setTitle("Kick:  " + userModel.getDisplayName());
+            dialogDelete.setCancelable(true);
+            dialogDelete.setMessage("Are you sure you want to kick him?");
+
+            dialogDelete.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialogInterface, int i) {
+                    //Delete member from a group
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST).child(groups.getGroupUID())
+                                                                                                                .child(groups.getOwnerGroupUID());
+                    ref.child(userModel.getUid()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                Toast.makeText(btnKick.getContext(),userModel.getDisplayName() + " Kicked", Toast.LENGTH_SHORT).show();
+                            }else{
+                                Toast.makeText(btnKick.getContext(), "some problem has occurred, please try again", Toast.LENGTH_SHORT).show();
+                                dialogInterface.dismiss();
+                            }
+                        }
+                    });
+
+                }
+            }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+
+            final AlertDialog alertDialog = dialogDelete.create();
+            alertDialog.show();
+        }
+    }
 }
 

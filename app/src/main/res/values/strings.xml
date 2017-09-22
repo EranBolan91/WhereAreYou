@@ -10,4 +10,8 @@
     <string name="add_member">Add member</string>
     <string name="title_activity_gmf">GMF</string>
     <string name="title_activity_group_member">GroupMemberActivity</string>
+
+    <string name="facebook_application_id" translatable="false">118136985533989</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb118136985533989</string>
+
 </resources>

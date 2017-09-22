@@ -135,10 +135,10 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
     private void addOwnerToTheGroup(Groups groupModel) {
         User user = new User(currentUser);
-    DatabaseReference refToMemeberGroup = FirebaseDatabase.getInstance()
+             DatabaseReference refToMemeberGroup = FirebaseDatabase.getInstance()
             .getReference(Params.MEMBER_GROUP_LIST).child(groupModel.getGroupUID())
             .child(groupModel.getOwnerGroupUID());
-        refToMemeberGroup.push().setValue(user);
+             refToMemeberGroup.push().setValue(user);
     }
 
 
