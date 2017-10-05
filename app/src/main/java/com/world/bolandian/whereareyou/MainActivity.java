@@ -53,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
                 List<AuthUI.IdpConfig> providers = Arrays.asList(
                         new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER)
                                 .setPermissions(Arrays.asList(Scopes.PROFILE,Scopes.EMAIL)).build(),
-                        new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                        new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build());
-
+                        new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build());
+                     //   new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build());
+                    //TODO: facebook crash the app - gotta check why
                 Intent intent = AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setLogo(R.drawable.whereareyoubro)
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
                 User user = new User(currentUser);
                 // save the user
                 //1)ref to table
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.USERS).child(user.getUid());
                 //2)push() setValue
                 ref.setValue(user);
 
@@ -169,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                     return new GroupsFragment();
                 case 1:
                   return new MapsFragment();
-                //    return new Fragment();
                 case 2:
                     return new Fragment();
                 default: return new Fragment();

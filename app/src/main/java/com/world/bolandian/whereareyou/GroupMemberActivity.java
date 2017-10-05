@@ -46,7 +46,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
     private Groups groupModel;
     private FirebaseDatabase mDatabase;
     private FirebaseUser currentUser;
-    private ArrayList<User> adapterUsers = new ArrayList<>();
+    private ArrayList<User> membersInGroup = new ArrayList<>();
     private ArrayList<User> users = new ArrayList<>();
     private ArrayList<User> filterUsers = new ArrayList<>();
     private DatabaseReference mMembersInGroup;
@@ -61,23 +61,39 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance();
-        rvGroupMemberList = (RecyclerView)findViewById(R.id.rvGroupMemberList);
+        rvGroupMemberList = (RecyclerView) findViewById(R.id.rvGroupMemberList);
 
         //this gets the Groups model from the GroupsFragment and sets the title of the group
-         groupModel = getIntent().getExtras().getParcelable("model");
-        if(groupModel.getGroupName() != null) {
+        groupModel = getIntent().getExtras().getParcelable("model");
+        if (groupModel.getGroupName() != null) {
             setTitle(groupModel.getGroupName());
-        }else {
+        } else {
             setTitle("");
         }
 
-        //get all the users and add them to arrylist when the activity is on
+        //gets all the members in the group so i can check on the filter if they already exist in the group
+        mDatabase.getReference(Params.MEMBER_GROUP_LIST).child(groupModel.getGroupUID()).child(groupModel.getOwnerGroupUID())
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            membersInGroup.add(snapshot.getValue(User.class));
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        //get all the users and add them to arraylist when the activity is on
         mDatabase.getReference(Params.USERS).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     userModel = snapshot.getValue(User.class);
-                    if(!(userModel.getUid().equals(currentUser.getUid()))){
+                    if (!(userModel.getUid().equals(currentUser.getUid()))) {
                         users.add(userModel);
                     }
                 }
@@ -89,17 +105,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
             }
         });
 
-        //TODO: find out why it gives me only one result. maybe the ref is not good enough
-        mMembersInGroup = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST)
-                                                        .child(groupModel.getGroupUID())
-                                                        .child(groupModel.getOwnerGroupUID());
-        MemberAdapter adapter = new MemberAdapter(mMembersInGroup,this,groupModel);
-        rvGroupMemberList.setAdapter(adapter);
-        rvGroupMemberList.setLayoutManager(new LinearLayoutManager(this));
-
-        //this code line gives me an error "DatabaseException: cant convert object of type String to model user.
-        //need to check why
-        //DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
+        setAdapterFriends();
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -119,6 +125,14 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
     }
 
 
+//    else{
+//        if(!(userModel.getUid().equals(memberInGroup.getUid()))) {
+//            if (userModel.getDisplayName().toLowerCase().contains(userNameInput))
+//                filterUsers.add(users.get(i));
+//        }
+//    }
+
+
     //TODO: continue to complate this code - for now it is working
     //TODO: problem with the adapter. when i search for a user and add him.
     //TODO: i cant return to the adapter of the users in the group. -- CHECK IT!!!--
@@ -127,21 +141,39 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
     public boolean onQueryTextSubmit(String query) {
         //this method filters the user by the name that the user type
         filterUsers.clear();
+        User memberInGroup;
         final String userNameInput = query.toLowerCase();
-        for(int i = 0; i < users.size();i++){
+        for (int i = 0; i < users.size(); i++) {
             userModel = users.get(i);
-            if(userModel.getDisplayName().toLowerCase().contains(userNameInput)){
-                filterUsers.add(users.get(i));
+            if (!(membersInGroup.size() == 0)) {
+                for (int j = 0; j < membersInGroup.size(); j++) {
+                    memberInGroup = membersInGroup.get(j);
+                    check(userModel, memberInGroup, userNameInput, i);
+                }
+            }else{
+                addUserForTheFirstTime(userModel,userNameInput, i);
             }
         }
-        if(filterUsers.size() == 0){
+        if (filterUsers.size() == 0) {
             Toast.makeText(this, "User is not exist", Toast.LENGTH_SHORT).show();
-        }else {
-            GroupMemberListAdapter adapter = new GroupMemberListAdapter(this, filterUsers,groupModel);
+        } else {
+            adapter = new GroupMemberListAdapter(this, filterUsers, groupModel);
             rvGroupMemberList.setAdapter(adapter);
             rvGroupMemberList.setLayoutManager(new LinearLayoutManager(this));
         }
         return true;
+    }
+
+    public void addUserForTheFirstTime(User userModel,String userNameInput,int i){
+        if (userModel.getDisplayName().toLowerCase().contains(userNameInput))
+            filterUsers.add(users.get(i));
+    }
+
+    public void check(User userModel, User memberInGroup,String userNameInput,int i) {
+        if (!(userModel.getUid().equals(memberInGroup.getUid()))) {
+            if (userModel.getDisplayName().toLowerCase().contains(userNameInput))
+                filterUsers.add(users.get(i));
+        }
     }
 
     @Override
@@ -164,7 +196,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
     }
 
 
-    //Adapter for searching Members in the search view
+        //Adapter for searching Members in the search view
     public static class GroupMemberListAdapter extends RecyclerView.Adapter<GroupMemberListViewHolder> {
             private Context context;
             private LayoutInflater inflater;
@@ -221,11 +253,6 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
 
         @Override
         public void onClick(View view) {
-            //save data under MemberGroupList -> groupID -> owner of the group ID -> the user data
-//            DatabaseReference refToGroupLists = FirebaseDatabase.getInstance()
-//                    .getReference(Params.MEMBER_GROUP_LIST).child(groupModel.getGroupUID()).child(groupModel.getOwnerGroupUID());
-//            refToGroupLists.push().setValue(userModel);
-
             //save data under MemberGroupList -> groupID ->owner of the group ID -> user id -> the user data
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST)
                     .child(groupModel.getGroupUID()).child(groupModel.getOwnerGroupUID())
@@ -234,7 +261,8 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
                 @Override
                 public void onSuccess(Void aVoid) {
                     String name = userModel.getDisplayName();
-                    Toast.makeText(userName.getContext(),"User" + name + " Has added" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(userName.getContext(),name + " Has added" , Toast.LENGTH_SHORT).show();
+                    //TODO: set the adapter
                 }
             });
         }
@@ -244,21 +272,40 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
    public static class MemberAdapter extends FirebaseRecyclerAdapter<User,MemberListViewHolder> {
        private Context context;
        private Groups modelGroup;
+       private FirebaseUser currentUser;
+       private ArrayList<User> membersInGroup;
 
-       public MemberAdapter(Query query,Context context,Groups modelGroup) {
+
+       public MemberAdapter(Query query,Context context,Groups modelGroup,ArrayList<User> membersInGroup) {
            super(User.class, R.layout.group_member_item, MemberListViewHolder.class, query);
            this.context = context;
            this.modelGroup = modelGroup;
+           currentUser = FirebaseAuth.getInstance().getCurrentUser();
+           this.membersInGroup = membersInGroup;
        }
 
        @Override
        protected void populateViewHolder(MemberListViewHolder viewHolder, User model, int position) {
+           //this if - check if its the owner of the group. if it is, it remove the button "kick" from his item
+           User member;
+           member = membersInGroup.get(position);
+           if(currentUser.getUid().equals(member.getUid())){
+               viewHolder.btnKick.setVisibility(View.GONE);
+            //this if check if it is the owner of the group, if its not him then it remove the "kick" button from all the items
+           }else if(!(currentUser.getUid().equals(modelGroup.getOwnerGroupUID()))){
+               viewHolder.btnKick.setVisibility(View.GONE);
+           }
             viewHolder.name.setText(model.getDisplayName());
             Glide.with(context).load(model.getProfileImage()).into(viewHolder.civImage);
             viewHolder.userModel = model;
             viewHolder.groups = modelGroup;
        }
-   }
+
+        @Override
+        public int getItemCount() {
+            return super.getItemCount();
+        }
+    }
 
     public static class MemberListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             private TextView name;
@@ -275,6 +322,8 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
 
              btnKick.setOnClickListener(this);
          }
+
+
 
          //Delete a member from the list
         @Override
@@ -315,6 +364,15 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
             final AlertDialog alertDialog = dialogDelete.create();
             alertDialog.show();
         }
+    }
+
+    public void setAdapterFriends(){
+        mMembersInGroup = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST)
+                .child(groupModel.getGroupUID())
+                .child(groupModel.getOwnerGroupUID());
+        MemberAdapter adapter = new MemberAdapter(mMembersInGroup,this,groupModel,membersInGroup);
+        rvGroupMemberList.setAdapter(adapter);
+        rvGroupMemberList.setLayoutManager(new LinearLayoutManager(this));
     }
 }
 

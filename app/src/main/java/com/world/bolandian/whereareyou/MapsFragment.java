@@ -73,12 +73,16 @@ public class MapsFragment extends android.support.v4.app.Fragment implements OnM
         mapFragment.getMapAsync(this);
 
         user = FirebaseAuth.getInstance().getCurrentUser();
-        // each group saved by user id = userid -> group name
-        ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(user.getUid());
+        if(user != null) {
+            // each group saved by user id = userid -> group name
+            ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(user.getUid());
 
-            GroupsMapAdapter groupMapAdapter = new GroupsMapAdapter(ref,getContext());
-            rvGroupMap.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,true));
+            GroupsMapAdapter groupMapAdapter = new GroupsMapAdapter(ref, getContext());
+            rvGroupMap.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, true));
             rvGroupMap.setAdapter(groupMapAdapter);
+        }else{
+
+        }
     }
 
 
@@ -91,18 +95,23 @@ public class MapsFragment extends android.support.v4.app.Fragment implements OnM
         if(checkLocationPermission())
         mMap.setMyLocationEnabled(true);
 
+        if(user != null)
         addMyLocation();
 
     }
 
+    //TODO: ask how to save the location of the same user in every group
     //save in the firebase the user location
     @Override
     public void onLocationChanged(Location location) {
-        ref = FirebaseDatabase.getInstance().getReference(Params.MEMBER_LOCATION);
-        GeoFire geoFire = new GeoFire(ref);
-        geoFire.setLocation(user.getUid(),new GeoLocation(location.getLatitude(),location.getLongitude()));
+        if(location != null && user != null) {
+            ref = FirebaseDatabase.getInstance().getReference(Params.MEMBER_LOCATION);
+            GeoFire geoFire = new GeoFire(ref);
+            geoFire.setLocation(user.getUid(), new GeoLocation(location.getLatitude(), location.getLongitude()));
 
-        refToMemberList = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST);
+            refToMemberList = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST);
+        }else
+            return;
 
     }
 
@@ -213,7 +222,7 @@ public class MapsFragment extends android.support.v4.app.Fragment implements OnM
         }
     }
 
-    public static class GroupsMapViewHolder extends RecyclerView.ViewHolder{
+    public static class GroupsMapViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
             private TextView groupName;
             private ImageView groupImage;
 
@@ -221,6 +230,12 @@ public class MapsFragment extends android.support.v4.app.Fragment implements OnM
             super(itemView);
             groupName = (TextView)itemView.findViewById(R.id.tvGroupName);
         //    groupImage = (ImageView)itemView.findViewById(R.id.ivGroup);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+
         }
     }
 }

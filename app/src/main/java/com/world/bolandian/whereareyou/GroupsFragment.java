@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,9 +24,13 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.world.bolandian.whereareyou.models.Groups;
 import com.world.bolandian.whereareyou.models.User;
 
@@ -39,9 +42,12 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         private RecyclerView rvGroup;
         private FloatingActionButton fabAdd;
         private String groupName;
+        private FirebaseDatabase refCountMembers;
         private DatabaseReference ref;
         private FirebaseUser currentUser;
         private ProgressBar progressBar;
+        private TextView tvEmptyListGroup;
+        private Groups model;
 
 
     public GroupsFragment() {
@@ -56,21 +62,81 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         View view = inflater.inflate(R.layout.fragment_groups, container, false);
         rvGroup = (RecyclerView)view.findViewById(R.id.rvGroup);
         progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
+        tvEmptyListGroup = (TextView)view.findViewById(R.id.tvEmptyListGroup);
+
         fabAdd = (FloatingActionButton)view.findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(this);
 
+        refCountMembers = FirebaseDatabase.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if(currentUser == null)return view;
         //start the progress bar
-        progressBar.setVisibility(View.VISIBLE);
+       progressBar.setVisibility(View.VISIBLE);
 
-         ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(currentUser.getUid());
-        GroupsAdapter adapter = new GroupsAdapter(ref,this,progressBar);
-        Log.d("checkAdapter",adapter.toString());Log.d("refe",ref.toString());
-        rvGroup.setAdapter(adapter);
-        rvGroup.setLayoutManager(new LinearLayoutManager(getContext()));
+        //check if there are groups
+        refCountMembers.getReference(Params.GROUP_LISTS).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!(dataSnapshot.exists())){
+                    //if there are no group it stops the progress bar and show the view text
+                        progressBar.setVisibility(View.GONE);
+                        tvEmptyListGroup.setVisibility(View.VISIBLE);
+                }else{
+                    //active the recyclerView and show all the groups
+                    setAdapterFriends();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getContext(),"Error: " + databaseError.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //check if there are no groups.
+        refCountMembers.getReference(Params.GROUP_LISTS).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            //if there are no groups then it shpws the textView
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Toast.makeText(getContext(),dataSnapshot.getKey() +  "Deleted", Toast.LENGTH_SHORT).show();
+                if((!dataSnapshot.exists()))
+                tvEmptyListGroup.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
 
         return view;
+    }
+
+
+    public void setAdapterFriends(){
+        progressBar.setVisibility(View.INVISIBLE);
+        tvEmptyListGroup.setVisibility(View.INVISIBLE);
+        ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(currentUser.getUid());
+        GroupsAdapter adapter = new GroupsAdapter(ref,getParentFragment(),progressBar);
+        rvGroup.setAdapter(adapter);
+        rvGroup.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     @Override
@@ -115,7 +181,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private Groups model;
+
     private void addGroup(String nameGroup) {
 
         ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(currentUser.getUid());
@@ -126,9 +192,12 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         row.setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                //TODO: add task.isSuccsseful and else - if there is a problem
-                addOwnerToTheGroup(model);
-                Toast.makeText(getContext(), "Group has added", Toast.LENGTH_SHORT).show();
+                if(task.isSuccessful()) {
+                    addOwnerToTheGroup(model);
+                    Toast.makeText(getContext(), "Group has added", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(getContext(), "Some problem has occurred, please try again", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -142,6 +211,8 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
     }
 
 
+
+    //TODO: finds out if i can count items (groups) with the firebaseRecycler. with the old recycler there is the method count with the .size
     public static class GroupsAdapter extends FirebaseRecyclerAdapter<Groups,GroupListViewHolder>  {
            private Fragment fragment;
            private ProgressBar progressBar;
@@ -155,7 +226,6 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         @Override
         protected void populateViewHolder(GroupListViewHolder viewHolder, Groups model, int position) {
             viewHolder.groupName.setText(model.getGroupName());
-
             viewHolder.model = model;
         }
 
@@ -163,6 +233,11 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         public GroupListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(viewType,parent,false);
             return new GroupListViewHolder(view,fragment,progressBar);
+        }
+
+        @Override
+        public int getItemCount() {
+            return super.getItemCount();
         }
     }
 
@@ -225,9 +300,9 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
             }else { // the else fires up when the user tape on the view, when remove button is not tapped
                     //this open an activity and transfer the data of the group that was tapped
                 //TODO: jump to groupMemberFragment and transfer the data
-                Intent i = new Intent(fragment.getContext(), GroupMemberActivity.class);
+                Intent i = new Intent(groupName.getContext(), GroupMemberActivity.class);
                 i.putExtra("model", model);
-                fragment.getActivity().startActivity(i);
+                groupName.getContext().startActivity(i);
             }
         }
     }
