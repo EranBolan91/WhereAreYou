@@ -11,6 +11,7 @@ public class Groups implements Parcelable {
     private String ownerGroupUID;
     private String groupUID;
     private String groupName;
+    private String groupImage = "https://cdn.pixabay.com/photo/2016/11/14/17/39/group-1824145_960_720.png";
 
     public Groups(){
 
@@ -22,10 +23,18 @@ public class Groups implements Parcelable {
         this.groupName = groupName;
     }
 
+    public Groups(String ownerGroupUID, String groupUID, String groupName, String groupImage) {
+        this.ownerGroupUID = ownerGroupUID;
+        this.groupUID = groupUID;
+        this.groupName = groupName;
+        this.groupImage = groupImage;
+    }
+
     protected Groups(Parcel in) {
         ownerGroupUID = in.readString();
         groupUID = in.readString();
         groupName = in.readString();
+        groupImage = in.readString();
     }
 
     public static final Creator<Groups> CREATOR = new Creator<Groups>() {
@@ -64,6 +73,15 @@ public class Groups implements Parcelable {
         this.groupName = groupName;
     }
 
+    public String getGroupImage() {
+        return groupImage;
+    }
+
+    public void setGroupImage(String groupImage) {
+        if(groupImage != null)
+        this.groupImage = groupImage;
+    }
+
     @Override
     public String toString() {
         return "Groups{" +
@@ -83,5 +101,6 @@ public class Groups implements Parcelable {
         parcel.writeString(ownerGroupUID);
         parcel.writeString(groupUID);
         parcel.writeString(groupName);
+        parcel.writeString(groupImage);
     }
 }

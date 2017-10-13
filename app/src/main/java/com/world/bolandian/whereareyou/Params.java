@@ -10,4 +10,5 @@ public class Params {
     public static final String MEMBER_GROUP_LIST = "MembersGroupList";
     public static final String USERS = "Users";
     public static final String MEMBER_LOCATION = "MembersLocation";
+    public static final String IDToken = "IdToken";
 }

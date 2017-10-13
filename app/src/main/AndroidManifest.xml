@@ -8,6 +8,9 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -46,14 +49,29 @@
             android:label="@string/title_activity_group_member"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
-                <meta-data
-                    android:name="android.app.searchable"
-                    android:resource="@layout/activity_group_member"
-                    android:value=".activities.SearchResultActivity" />
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@layout/activity_group_member"
+                android:value=".activities.SearchResultActivity" />
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.world.bolandian.whereareyou.MainActivity" />
         </activity>
+        <activity android:name=".InboxActivity"></activity>
+
+        <service
+            android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

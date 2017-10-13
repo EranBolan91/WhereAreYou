@@ -1,12 +1,18 @@
 package com.world.bolandian.whereareyou;
 
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,6 +38,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.mikhaellopez.circularimageview.CircularImageView;
 import com.world.bolandian.whereareyou.models.Groups;
 import com.world.bolandian.whereareyou.models.User;
 
@@ -39,7 +47,8 @@ import com.world.bolandian.whereareyou.models.User;
  * A simple {@link Fragment} subclass.
  */
 public class GroupsFragment extends Fragment implements View.OnClickListener {
-        private RecyclerView rvGroup;
+    private static final int RC_WRITE = 2;
+    private RecyclerView rvGroup;
         private FloatingActionButton fabAdd;
         private String groupName;
         private FirebaseDatabase refCountMembers;
@@ -48,7 +57,8 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         private ProgressBar progressBar;
         private TextView tvEmptyListGroup;
         private Groups model;
-
+        private SharedPreferences sharedPreferences;
+        private String token;
 
     public GroupsFragment() {
         // Required empty public constructor
@@ -67,6 +77,10 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         fabAdd = (FloatingActionButton)view.findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(this);
 
+        //get the token from MyFirebaseInstanceIDService
+        sharedPreferences = getActivity().getSharedPreferences(Params.IDToken, Context.MODE_PRIVATE);
+        token = sharedPreferences.getString("token",null);
+
         refCountMembers = FirebaseDatabase.getInstance();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if(currentUser == null)return view;
@@ -83,7 +97,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
                         tvEmptyListGroup.setVisibility(View.VISIBLE);
                 }else{
                     //active the recyclerView and show all the groups
-                    setAdapterFriends();
+                    setAdapterGroups();
                 }
             }
 
@@ -130,11 +144,11 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    public void setAdapterFriends(){
+    public void setAdapterGroups(){
         progressBar.setVisibility(View.INVISIBLE);
         tvEmptyListGroup.setVisibility(View.INVISIBLE);
         ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(currentUser.getUid());
-        GroupsAdapter adapter = new GroupsAdapter(ref,getParentFragment(),progressBar);
+        GroupsAdapter adapter = new GroupsAdapter(ref,getChildFragmentManager(),progressBar);
         rvGroup.setAdapter(adapter);
         rvGroup.setLayoutManager(new LinearLayoutManager(getContext()));
     }
@@ -203,7 +217,8 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
     }
 
     private void addOwnerToTheGroup(Groups groupModel) {
-        User user = new User(currentUser);
+
+        User user = new User(currentUser,token);
              DatabaseReference refToMemeberGroup = FirebaseDatabase.getInstance()
             .getReference(Params.MEMBER_GROUP_LIST).child(groupModel.getGroupUID())
             .child(groupModel.getOwnerGroupUID());
@@ -214,10 +229,10 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
     //TODO: finds out if i can count items (groups) with the firebaseRecycler. with the old recycler there is the method count with the .size
     public static class GroupsAdapter extends FirebaseRecyclerAdapter<Groups,GroupListViewHolder>  {
-           private Fragment fragment;
+           private FragmentManager fragment;
            private ProgressBar progressBar;
 
-        public GroupsAdapter(Query query,Fragment fragment,ProgressBar progressBar) {
+        public GroupsAdapter(Query query, FragmentManager fragment, ProgressBar progressBar) {
             super(Groups.class, R.layout.group_item, GroupListViewHolder.class, query);
             this.fragment = fragment;
             this.progressBar = progressBar;
@@ -227,6 +242,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         protected void populateViewHolder(GroupListViewHolder viewHolder, Groups model, int position) {
             viewHolder.groupName.setText(model.getGroupName());
             viewHolder.model = model;
+            Glide.with(viewHolder.groupName.getContext()).load(model.getGroupImage()).into(viewHolder.cvGroupImage);
         }
 
         @Override
@@ -244,67 +260,103 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
     public static class GroupListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView groupName;
         private BootstrapButton btnDeleteGroup;
-        private Fragment fragment;
+        private FragmentManager fragment;
         private Groups model;
+        private CircularImageView cvGroupImage;
 
-        public GroupListViewHolder(View itemView,Fragment fragment,ProgressBar progressBar) {
+        public GroupListViewHolder(View itemView,FragmentManager fragment,ProgressBar progressBar) {
             super(itemView);
             this.fragment = fragment;
             progressBar.setVisibility(View.INVISIBLE);
             groupName = (TextView) itemView.findViewById(R.id.groupName);
+            cvGroupImage = (CircularImageView)itemView.findViewById(R.id.cvGroupImage);
             btnDeleteGroup =(BootstrapButton) itemView.findViewById(R.id.btnDeleteGroup);
 
             itemView.setOnClickListener(this);
             btnDeleteGroup.setOnClickListener(this);
+            cvGroupImage.setOnClickListener(this);
         }
 
         //Delete a group VIA dialog alert
         @Override
         public void onClick(View view) {
-            if(view == btnDeleteGroup){
-                final AlertDialog.Builder dialogDelete = new AlertDialog.Builder(btnDeleteGroup.getContext());
+            switch(view.getId()){
+                case R.id.btnDeleteGroup:
+                    final AlertDialog.Builder dialogDelete = new AlertDialog.Builder(btnDeleteGroup.getContext());
 
-                dialogDelete.setIcon(R.drawable.ic_warning);
-                dialogDelete.setTitle("Removing group:  " + model.getGroupName());
-                dialogDelete.setCancelable(true);
-                dialogDelete.setMessage("Are you sure you want to remove?");
+                    dialogDelete.setIcon(R.drawable.ic_warning);
+                    dialogDelete.setTitle("Removing group:  " + model.getGroupName());
+                    dialogDelete.setCancelable(true);
+                    dialogDelete.setMessage("Are you sure you want to remove?");
 
-                dialogDelete.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialogInterface, int i) {
-                        //Delete group from firebase
-                        DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(model.getOwnerGroupUID());
-                        ref.child(model.getGroupUID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()){
-                                    Toast.makeText(btnDeleteGroup.getContext(),model.getGroupName() + " Deleted", Toast.LENGTH_SHORT).show();
-                                }else{
-                                    Toast.makeText(btnDeleteGroup.getContext(), "some problem has occurred, please try again", Toast.LENGTH_SHORT).show();
-                                    dialogInterface.dismiss();
+                    dialogDelete.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(final DialogInterface dialogInterface, int i) {
+                            //Delete group from firebase
+                            DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.GROUP_LISTS).child(model.getOwnerGroupUID());
+                            ref.child(model.getGroupUID()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(btnDeleteGroup.getContext(),model.getGroupName() + " Deleted", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        Toast.makeText(btnDeleteGroup.getContext(), "some problem has occurred, please try again", Toast.LENGTH_SHORT).show();
+                                        dialogInterface.dismiss();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
+                    }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    });
 
-                    }
-                }).setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                                 dialogInterface.dismiss();
-                    }
-                });
+                    final AlertDialog alertDialog = dialogDelete.create();
+                    alertDialog.show();
+                    break;
 
-                final AlertDialog alertDialog = dialogDelete.create();
-                alertDialog.show();
+                case R.id.cvGroupImage:
+                    Bundle groupData = new Bundle();
+                    groupData.putString("groupName",model.getGroupName());
+                    groupData.putString("groupImage",model.getGroupImage());
+                    DialogFragment groupImage = new GroupImage();
+                    groupImage.setArguments(groupData);
+                    groupImage.show(fragment,"hello");
+                    break;
 
-            }else { // the else fires up when the user tape on the view, when remove button is not tapped
+                default:
+                    // the else fires up when the user tape on the view, when remove button is not tapped
                     //this open an activity and transfer the data of the group that was tapped
-                //TODO: jump to groupMemberFragment and transfer the data
-                Intent i = new Intent(groupName.getContext(), GroupMemberActivity.class);
-                i.putExtra("model", model);
-                groupName.getContext().startActivity(i);
+                    Intent i = new Intent(groupName.getContext(), GroupMemberActivity.class);
+                    i.putExtra("model", model);
+                    groupName.getContext().startActivity(i);
             }
         }
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == RC_WRITE && grantResults[0] == PackageManager.PERMISSION_GRANTED){
 
+        }
+
+    }
+
+    private boolean checkStoragePermission(){
+        int resultCode = ActivityCompat.checkSelfPermission(getContext(),
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        boolean granted = resultCode == PackageManager.PERMISSION_GRANTED;
+
+        if (!granted){
+            ActivityCompat.requestPermissions(
+                    getActivity(),
+                    new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    RC_WRITE /*Constant Field int*/
+            );
+        }
+        return granted;
+    }
 }

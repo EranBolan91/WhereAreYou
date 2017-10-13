@@ -13,4 +13,11 @@
         android:orderInCategory="101"
         android:title="@string/action_sign_out"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_inboxRequests"
+        android:icon="@drawable/ic_inbox"
+        android:orderInCategory="102"
+        android:title="@string/inbox"
+        app:showAsAction="always" />
 </menu>

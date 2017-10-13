@@ -149,6 +149,8 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
                 for (int j = 0; j < membersInGroup.size(); j++) {
                     memberInGroup = membersInGroup.get(j);
                     check(userModel, memberInGroup, userNameInput, i);
+                    //TODO: not complete, in the result of the filter, it shows the same member X the members in the group
+                    //TODO: need to think how to not show in the filter users that are already in the group
                 }
             }else{
                 addUserForTheFirstTime(userModel,userNameInput, i);
@@ -245,7 +247,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
             super(itemView);
             this.groupModel = groupModel;
             userName = (TextView) itemView.findViewById(R.id.tvUserName);
-            profileImage = (CircularImageView)itemView.findViewById(R.id.cvMember);
+            profileImage = (CircularImageView)itemView.findViewById(R.id.cvGroupImage);
             btnAddMember = (BootstrapButton)itemView.findViewById(R.id.btnAddMember);
 
             btnAddMember.setOnClickListener(this);
@@ -286,9 +288,9 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
 
        @Override
        protected void populateViewHolder(MemberListViewHolder viewHolder, User model, int position) {
-           //this if - check if its the owner of the group. if it is, it remove the button "kick" from his item
            User member;
            member = membersInGroup.get(position);
+           //this if - check if its the owner of the group. if it is, it remove the button "kick" from his item
            if(currentUser.getUid().equals(member.getUid())){
                viewHolder.btnKick.setVisibility(View.GONE);
             //this if check if it is the owner of the group, if its not him then it remove the "kick" button from all the items
@@ -317,7 +319,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
          public MemberListViewHolder(View itemView) {
              super(itemView);
              name = (TextView)itemView.findViewById(R.id.tvNameMember);
-             civImage =(CircularImageView)itemView.findViewById(R.id.cvMember);
+             civImage =(CircularImageView)itemView.findViewById(R.id.cvGroupImage);
              btnKick = (BootstrapButton) itemView.findViewById(R.id.btnKickMemeber);
 
              btnKick.setOnClickListener(this);

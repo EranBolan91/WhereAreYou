@@ -1,6 +1,7 @@
 package com.world.bolandian.whereareyou;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
@@ -12,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseUser user;
     private FirebaseDatabase mDatabase;
     private static final int RC_SIGN_IN = 1;
+    private SharedPreferences sharedPreferences;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                         new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER)
                                 .setPermissions(Arrays.asList(Scopes.PROFILE,Scopes.EMAIL)).build(),
                         new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build());
-                     //   new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build());
+                        //new AuthUI.IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER).build());
                     //TODO: facebook crash the app - gotta check why
                 Intent intent = AuthUI.getInstance()
                         .createSignInIntentBuilder()
@@ -68,19 +71,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //getting the token from FirebaseInstanceIDService
+        sharedPreferences = getSharedPreferences(Params.IDToken,MODE_PRIVATE);
+        String token = sharedPreferences.getString("token",null);
+
         if(requestCode == RC_SIGN_IN){
             IdpResponse idpResponse = IdpResponse.fromResultIntent(data);
             if(idpResponse != null && resultCode == RESULT_OK){
                 //0)create user
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-                User user = new User(currentUser);
-                // save the user
-                //1)ref to table
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.USERS).child(user.getUid());
-                //2)push() setValue
-                ref.setValue(user);
-
+                if(token != null) {
+                    User user = new User(currentUser, token);
+                    // save the user
+                    //1)ref to table
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.USERS).child(user.getUid());
+                    //2)push() setValue
+                    ref.setValue(user);
+                }else{
+                    Toast.makeText(this, "Some problem has accrued, please try again", Toast.LENGTH_SHORT).show();
+                }
             }//TODO: else if (idpResponse != null && idpResponse.00)
         }
     }
@@ -102,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
 
@@ -138,15 +146,16 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id){
+            case R.id.action_settings:
+                return true;
+            case R.id.action_sign_out:
+                AuthUI.getInstance().signOut(this);
+                break;
+            case R.id.action_inboxRequests:
+                Intent i = new Intent(MainActivity.this,InboxActivity.class);
+                startActivity(i);
         }
-        if(id == R.id.action_sign_out){
-            AuthUI.getInstance().signOut(this);
-        }
-
         return super.onOptionsItemSelected(item);
     }
 

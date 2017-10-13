@@ -11,18 +11,20 @@ public class User {
     private String profileImage ="http://vvcexpl.com/wordpress/wp-content/uploads/2013/09/profile-default-male.png";
     private String uid;
     private String email;
+    private String token;
 
     public User(){
 
     }
 
-    public User(FirebaseUser user) {
+    public User(FirebaseUser user,String token) {
         this.displayName = user.getDisplayName();
         if(user.getPhotoUrl() != null){
             profileImage = user.getPhotoUrl().toString();
         }
         this.uid = user.getUid();
         this.email = user.getEmail();
+        this.token = token;
     }
 
     public String getDisplayName() {
@@ -58,6 +60,14 @@ public class User {
         this.email = email;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -65,6 +75,7 @@ public class User {
                 ", profileImage='" + profileImage + '\'' +
                 ", uid='" + uid + '\'' +
                 ", email='" + email + '\'' +
+                ", token='" + token + '\'' +
                 '}';
     }
 }
