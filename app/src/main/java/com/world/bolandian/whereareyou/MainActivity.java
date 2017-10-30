@@ -22,6 +22,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.world.bolandian.whereareyou.activity.InboxActivity;
+import com.world.bolandian.whereareyou.fragments.GroupsFragment;
+import com.world.bolandian.whereareyou.fragments.MapsFragment;
 import com.world.bolandian.whereareyou.models.User;
 
 import java.util.Arrays;
@@ -72,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         //getting the token from FirebaseInstanceIDService
-        sharedPreferences = getSharedPreferences(Params.IDToken,MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(Params.IDTOKEN,MODE_PRIVATE);
         String token = sharedPreferences.getString("token",null);
 
         if(requestCode == RC_SIGN_IN){

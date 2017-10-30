@@ -1,4 +1,4 @@
-package com.world.bolandian.whereareyou;
+package com.world.bolandian.whereareyou.services;
 
 import android.content.SharedPreferences;
 
@@ -8,6 +8,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
+import com.world.bolandian.whereareyou.Params;
 
 /**
  * Created by Bolandian on 05/10/2017.
@@ -20,7 +21,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         super.onTokenRefresh();
 
         String token = FirebaseInstanceId.getInstance().getToken();
-        SharedPreferences prefsToken = getSharedPreferences(Params.IDToken, MODE_PRIVATE);
+        SharedPreferences prefsToken = getSharedPreferences(Params.IDTOKEN, MODE_PRIVATE);
         SharedPreferences.Editor edit = prefsToken.edit();
         edit.putString("token",token);
         edit.commit();

@@ -1,4 +1,4 @@
-package com.world.bolandian.whereareyou;
+package com.world.bolandian.whereareyou.activity;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +35,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.world.bolandian.whereareyou.Params;
+import com.world.bolandian.whereareyou.R;
 import com.world.bolandian.whereareyou.models.Groups;
+import com.world.bolandian.whereareyou.models.Invitation;
 import com.world.bolandian.whereareyou.models.User;
 
 import java.util.ArrayList;
@@ -47,9 +51,10 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
     private FirebaseDatabase mDatabase;
     private FirebaseUser currentUser;
     private ArrayList<User> membersInGroup = new ArrayList<>();
-    private ArrayList<User> users = new ArrayList<>();
+    private ArrayList<User> usersFromDB = new ArrayList<>();
     private ArrayList<User> filterUsers = new ArrayList<>();
     private DatabaseReference mMembersInGroup;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +65,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
         setSupportActionBar(toolbar);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
         mDatabase = FirebaseDatabase.getInstance();
         rvGroupMemberList = (RecyclerView) findViewById(R.id.rvGroupMemberList);
 
@@ -94,7 +100,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     userModel = snapshot.getValue(User.class);
                     if (!(userModel.getUid().equals(currentUser.getUid()))) {
-                        users.add(userModel);
+                        usersFromDB.add(userModel);
                     }
                 }
             }
@@ -125,14 +131,6 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
     }
 
 
-//    else{
-//        if(!(userModel.getUid().equals(memberInGroup.getUid()))) {
-//            if (userModel.getDisplayName().toLowerCase().contains(userNameInput))
-//                filterUsers.add(users.get(i));
-//        }
-//    }
-
-
     //TODO: continue to complate this code - for now it is working
     //TODO: problem with the adapter. when i search for a user and add him.
     //TODO: i cant return to the adapter of the users in the group. -- CHECK IT!!!--
@@ -143,8 +141,9 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
         filterUsers.clear();
         User memberInGroup;
         final String userNameInput = query.toLowerCase();
-        for (int i = 0; i < users.size(); i++) {
-            userModel = users.get(i);
+        for (int i = 0; i < usersFromDB.size(); i++) {
+            //userModel = searchedUsersFromDatabase
+            userModel = usersFromDB.get(i);
             if (!(membersInGroup.size() == 0)) {
                 for (int j = 0; j < membersInGroup.size(); j++) {
                     memberInGroup = membersInGroup.get(j);
@@ -159,7 +158,7 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
         if (filterUsers.size() == 0) {
             Toast.makeText(this, "User is not exist", Toast.LENGTH_SHORT).show();
         } else {
-            adapter = new GroupMemberListAdapter(this, filterUsers, groupModel);
+            adapter = new GroupMemberListAdapter(this, filterUsers, groupModel,currentUser);
             rvGroupMemberList.setAdapter(adapter);
             rvGroupMemberList.setLayoutManager(new LinearLayoutManager(this));
         }
@@ -168,13 +167,26 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
 
     public void addUserForTheFirstTime(User userModel,String userNameInput,int i){
         if (userModel.getDisplayName().toLowerCase().contains(userNameInput))
-            filterUsers.add(users.get(i));
+            filterUsers.add(usersFromDB.get(i));
     }
 
     public void check(User userModel, User memberInGroup,String userNameInput,int i) {
+         ArrayList<User> checkFilter = new ArrayList<>();
+        //userModel = userFromDB(searched user)
+        //this if filter the owner of the group
         if (!(userModel.getUid().equals(memberInGroup.getUid()))) {
-            if (userModel.getDisplayName().toLowerCase().contains(userNameInput))
-                filterUsers.add(users.get(i));
+            if (userModel.getDisplayName().toLowerCase().contains(userNameInput)) {
+                if (filterUsers.size() == 0) {
+                    filterUsers.add(usersFromDB.get(i));
+                } else {
+                    User userFilter = null;
+                    for (i = 0; i < filterUsers.size(); i++) {
+                        userFilter = filterUsers.get(i);
+                        if (userFilter.getUid() != userModel.getUid())
+                            filterUsers.add(usersFromDB.get(i));
+                    }
+                }
+            }
         }
     }
 
@@ -204,19 +216,21 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
             private LayoutInflater inflater;
             private ArrayList<User> data;
             private Groups groupModel;
+            private FirebaseUser currentUser;
 
 
-        public GroupMemberListAdapter(Context context, ArrayList<User> data,Groups groupModel){
+        public GroupMemberListAdapter(Context context, ArrayList<User> data,Groups groupModel,FirebaseUser currentUser){
             this.context = context;
             this.inflater = LayoutInflater.from(context);
             this.data = data;
             this.groupModel = groupModel;
+            this.currentUser = currentUser;
         }
 
         @Override
         public GroupMemberListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View v = inflater.inflate(R.layout.group_member_add_item,parent,false);
-            return new GroupMemberListViewHolder(v,groupModel);
+            return new GroupMemberListViewHolder(v,groupModel,currentUser);
         }
 
         @Override
@@ -242,10 +256,12 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
             private User userModel;
             private Groups groupModel;
             private Context context;
+            private FirebaseUser currentUser;
 
-        public GroupMemberListViewHolder(View itemView,Groups groupModel) {
+        public GroupMemberListViewHolder(View itemView,Groups groupModel,FirebaseUser currentUser) {
             super(itemView);
             this.groupModel = groupModel;
+            this.currentUser = currentUser;
             userName = (TextView) itemView.findViewById(R.id.tvUserName);
             profileImage = (CircularImageView)itemView.findViewById(R.id.cvGroupImage);
             btnAddMember = (BootstrapButton)itemView.findViewById(R.id.btnAddMember);
@@ -253,8 +269,21 @@ public class GroupMemberActivity extends AppCompatActivity implements SearchView
             btnAddMember.setOnClickListener(this);
         }
 
+        //add member to the group
         @Override
         public void onClick(View view) {
+            //set Invitation Model
+            //TODO:Works good - saves the data. continue work with that
+            Task<GetTokenResult> idToken = currentUser.getIdToken(true);
+            Invitation invite = new Invitation(Params.INVITE,currentUser.getDisplayName(),currentUser.getUid()
+                    ,currentUser.getPhotoUrl().toString()
+                    ,idToken.toString());
+
+            //save the invitation under userID of the member you want to add to your group.
+            //Invitations -> userUID invited -> data of the member who sends the request
+            DatabaseReference refToNotifi = FirebaseDatabase.getInstance().getReference(Params.INVITATIONS).child(userModel.getUid());
+            refToNotifi.setValue(invite);
+
             //save data under MemberGroupList -> groupID ->owner of the group ID -> user id -> the user data
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference(Params.MEMBER_GROUP_LIST)
                     .child(groupModel.getGroupUID()).child(groupModel.getOwnerGroupUID())

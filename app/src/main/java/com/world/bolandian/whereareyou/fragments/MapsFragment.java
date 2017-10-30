@@ -1,4 +1,4 @@
-package com.world.bolandian.whereareyou;
+package com.world.bolandian.whereareyou.fragments;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -31,6 +32,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.world.bolandian.whereareyou.Params;
+import com.world.bolandian.whereareyou.R;
 import com.world.bolandian.whereareyou.models.Groups;
 import com.world.bolandian.whereareyou.models.MemberLocation;
 import com.world.bolandian.whereareyou.models.User;
@@ -218,7 +221,7 @@ public class MapsFragment extends android.support.v4.app.Fragment implements OnM
         @Override
         protected void populateViewHolder(GroupsMapViewHolder viewHolder, Groups model, int position) {
                 viewHolder.groupName.setText(model.getGroupName());
-           // Glide.with(context).load(model.ge).into(holder.profileImage);
+            Glide.with(context).load(model.getGroupImage()).into(viewHolder.groupImage);
         }
     }
 
@@ -229,7 +232,7 @@ public class MapsFragment extends android.support.v4.app.Fragment implements OnM
         public GroupsMapViewHolder(View itemView) {
             super(itemView);
             groupName = (TextView)itemView.findViewById(R.id.tvGroupName);
-        //    groupImage = (ImageView)itemView.findViewById(R.id.ivGroup);
+            groupImage = (ImageView)itemView.findViewById(R.id.ivGroup);
             itemView.setOnClickListener(this);
         }
 

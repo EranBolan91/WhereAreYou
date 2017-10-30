@@ -1,4 +1,4 @@
-package com.world.bolandian.whereareyou;
+package com.world.bolandian.whereareyou.services;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;

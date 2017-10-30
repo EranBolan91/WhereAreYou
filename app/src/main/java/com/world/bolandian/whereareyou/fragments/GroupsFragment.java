@@ -1,15 +1,13 @@
-package com.world.bolandian.whereareyou;
+package com.world.bolandian.whereareyou.fragments;
 
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -39,6 +37,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.world.bolandian.whereareyou.activity.GroupImage;
+import com.world.bolandian.whereareyou.activity.GroupMemberActivity;
+import com.world.bolandian.whereareyou.Params;
+import com.world.bolandian.whereareyou.R;
 import com.world.bolandian.whereareyou.models.Groups;
 import com.world.bolandian.whereareyou.models.User;
 
@@ -47,8 +49,7 @@ import com.world.bolandian.whereareyou.models.User;
  * A simple {@link Fragment} subclass.
  */
 public class GroupsFragment extends Fragment implements View.OnClickListener {
-    private static final int RC_WRITE = 2;
-    private RecyclerView rvGroup;
+        private RecyclerView rvGroup;
         private FloatingActionButton fabAdd;
         private String groupName;
         private FirebaseDatabase refCountMembers;
@@ -78,7 +79,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         fabAdd.setOnClickListener(this);
 
         //get the token from MyFirebaseInstanceIDService
-        sharedPreferences = getActivity().getSharedPreferences(Params.IDToken, Context.MODE_PRIVATE);
+        sharedPreferences = getActivity().getSharedPreferences(Params.IDTOKEN, Context.MODE_PRIVATE);
         token = sharedPreferences.getString("token",null);
 
         refCountMembers = FirebaseDatabase.getInstance();
@@ -137,8 +138,6 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
             }
         });
-
-
 
         return view;
     }
@@ -227,7 +226,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
 
 
-    //TODO: finds out if i can count items (groups) with the firebaseRecycler. with the old recycler there is the method count with the .size
+
     public static class GroupsAdapter extends FirebaseRecyclerAdapter<Groups,GroupListViewHolder>  {
            private FragmentManager fragment;
            private ProgressBar progressBar;
@@ -334,29 +333,5 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
                     groupName.getContext().startActivity(i);
             }
         }
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == RC_WRITE && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-
-        }
-
-    }
-
-    private boolean checkStoragePermission(){
-        int resultCode = ActivityCompat.checkSelfPermission(getContext(),
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        boolean granted = resultCode == PackageManager.PERMISSION_GRANTED;
-
-        if (!granted){
-            ActivityCompat.requestPermissions(
-                    getActivity(),
-                    new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    RC_WRITE /*Constant Field int*/
-            );
-        }
-        return granted;
     }
 }

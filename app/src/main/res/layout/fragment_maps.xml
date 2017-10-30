@@ -17,7 +17,7 @@
         map:layout_constraintLeft_toLeftOf="parent"
         map:layout_constraintRight_toRightOf="parent"
         map:layout_constraintTop_toTopOf="parent"
-        tools:context="com.world.bolandian.whereareyou.MapsFragment"/>
+        tools:context="com.world.bolandian.whereareyou.fragments.MapsFragment"/>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"

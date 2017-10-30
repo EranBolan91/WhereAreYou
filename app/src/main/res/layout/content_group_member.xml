@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.world.bolandian.whereareyou.GroupMemberActivity"
+    tools:context="com.world.bolandian.whereareyou.activity.GroupMemberActivity"
     tools:showIn="@layout/activity_group_member">
 
     <android.support.v7.widget.RecyclerView
